@@ -20,5 +20,5 @@
       timeout: 120
      with_items: "{{result.ansible_facts.openstack_servers}}"
 
-- import_playbook: better-playbook-3tier.yml
+- import_playbook: 3tier-deploy-playbook.yml
 
