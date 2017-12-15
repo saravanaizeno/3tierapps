@@ -1,35 +1,24 @@
-- name: configure repo on all hosts
-  hosts: all
+#deploy 3tier to osp environment
+- hosts: jumpbox
   gather_facts: false
-  become: true
-  roles:
-    - config-repo
+  tasks:
+   - name: Fetch Instance Info
+     os_server_facts:
+      cloud: ospcloud
+      region_name: RegionOne
+     register: result
+   - name: Add host to
+     add_host:
+      name: "{{ item.public_v4 }}"
+      group: "{{ item.metadata.group }}"
+      timeout: 120
+     with_items: "{{result.ansible_facts.openstack_servers}}"
+   - name: Add host
+     add_host:
+      name: "{{ item.public_v4 }}"
+      group: "{{ item.metadata.deployment_name }}"
+      timeout: 120
+     with_items: "{{result.ansible_facts.openstack_servers}}"
 
-- name: deploy haproxy
-  hosts: frontends
-  gather_facts: false
-  become: true
-  roles:
-    - deploy-haproxy
-
-- name: deploy tomcat
-  hosts: apps
-  gather_facts: false
-  become: true
-  roles:
-    - deploy-tomcat
-
-- name: index.html on app servers
-  hosts: apps
-  gather_facts: true
-  become: true
-  roles:
-    - deploy-app
-
-- name: deploy postgres
-  gather_facts: false
-  become: true
-  hosts: appdbs
-  roles:
-    - deploy-db
+- import_playbook: better-playbook-3tier.yml
 
